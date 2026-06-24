@@ -1,0 +1,21 @@
+# Conference Hall service — created by setup.sh / at runtime
+.claude/conference-hall/.venv/
+.claude/conference-hall/*.db
+.claude/conference-hall/*.log
+
+# Agent workspaces are created at runtime; keep the dir + its docs, ignore the
+# per-agent subfolders.
+.claude/workspaces/*/
+!.claude/workspaces/.gitkeep
+!.claude/workspaces/README.md
+
+# Python
+__pycache__/
+*.pyc
+
+# Claude Code per-user local overrides
+.claude/settings.local.json
+
+# NOTE: .mcp.json IS committed — it is portable (relative launcher path).
+# Only the per-machine absolute variant would need ignoring, and that is an
+# opt-in fallback (./setup.sh --absolute-mcp).

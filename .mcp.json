@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "conference-hall": {
+      "command": "bash",
+      "args": ["./.claude/conference-hall/mcp_launch.sh"],
+      "env": { "FEED_URL": "http://127.0.0.1:8787" }
+    }
+  }
+}

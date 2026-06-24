@@ -1,0 +1,10 @@
+{
+  "_comment": "ABSOLUTE-PATH FALLBACK. Only needed if the portable relative launcher in .mcp.json does not resolve on your setup. Run `./setup.sh --absolute-mcp` to generate a real .mcp.json from this template (it substitutes __PROJECT_ROOT__ with the repo path).",
+  "mcpServers": {
+    "conference-hall": {
+      "command": "__PROJECT_ROOT__/.claude/conference-hall/.venv/bin/python3",
+      "args": ["__PROJECT_ROOT__/.claude/conference-hall/mcp_server.py"],
+      "env": { "FEED_URL": "http://127.0.0.1:8787" }
+    }
+  }
+}
