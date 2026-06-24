@@ -8,6 +8,14 @@ session. Edit freely.
 - (example) Default models: research=haiku, implementation=sonnet, planning=opus.
 - (example) Conference Hall lives at .claude/conference-hall/ on port 8787.
 
+## Confirmed human preferences (real)
+
+- **Subagent dispatch: background (default).** Human prefers a responsive chat
+  over the live inline console stream. They know background agents don't show
+  the colored nested console output; they're fine relying on relayed summaries +
+  each agent's `OUTPUT.md`/`worklog.md` + the Conference Hall. Only run an agent
+  in the foreground if the human explicitly asks to watch it live.
+
 ## Demo project: "Plumber Dash" (a Mario-like game)
 
 A worked example that exercises this template. Everything for it is marked

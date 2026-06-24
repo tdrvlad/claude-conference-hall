@@ -9,6 +9,13 @@
 !.claude/workspaces/.gitkeep
 !.claude/workspaces/README.md
 
+# The demo game is built by the demo agents at runtime; keep the folder scaffold
+# (the .gitkeep + README) but ignore whatever the agents generate into it, so the
+# worked example stays cleanly repeatable.
+/demo-game/*
+!/demo-game/.gitkeep
+!/demo-game/README.md
+
 # Python
 __pycache__/
 *.pyc
