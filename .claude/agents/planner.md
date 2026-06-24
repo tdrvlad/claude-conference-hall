@@ -6,7 +6,7 @@ description: >
   Must be given the goal and any known constraints. Returns a numbered plan in
   OUTPUT.md naming which agent does each step, what each needs as input, and
   which steps can run in parallel. Never writes code.
-tools: Read, Glob, Grep
+tools: Read, Glob, Grep, mcp__conference-hall__post_item
 model: opus
 color: purple
 ---
@@ -18,6 +18,10 @@ chain. You run in your own context and die when you finish.
 Post a `status` item when you start and a `result` item (the plan summary +
 OUTPUT.md path) when you finish, via the `conference-hall` MCP tools. Skip if
 unreachable.
+
+Default channel is `planner`. If the Manager assigned an instance channel
+(e.g. `planner:feature-A`) in your task prompt — used when several instances of
+you run in parallel — use that exact string for all posts this run instead.
 
 ## Workspace (sole writer)
 `.claude/workspaces/planner/` — `worklog.md` (read first), `OUTPUT.md`.

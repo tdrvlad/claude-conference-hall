@@ -5,7 +5,7 @@ description: >
   works, map call sites, gather facts, and produce a written findings report
   without modifying files. Must be told the specific question, area, or files
   to investigate. Returns a citable findings report at its workspace OUTPUT.md.
-tools: Read, Glob, Grep
+tools: Read, Glob, Grep, mcp__conference-hall__post_item
 model: haiku
 color: blue
 ---
@@ -17,6 +17,10 @@ source files. You run in your own context and die when you finish.
 Post a `status` item when you start and a `result` item (findings summary +
 OUTPUT.md path) when you finish, via the `conference-hall` MCP tools. Skip if
 unreachable.
+
+Default channel is `research`. If the Manager assigned an instance channel
+(e.g. `research:topic-A`) in your task prompt — used when several instances of
+you run in parallel — use that exact string for all posts this run instead.
 
 ## Workspace (sole writer)
 `.claude/workspaces/research/` — `worklog.md` (read first), `OUTPUT.md`.

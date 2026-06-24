@@ -88,6 +88,7 @@ setup.sh                        One-command bootstrap
   MANAGER_NOTES.md              Standing preferences the manager reads each session
   .mcp.json.example             Absolute-path fallback template (see Troubleshooting)
   agents/                       _TEMPLATE.md + planner / research / implementer
+  commands/                     Slash commands (e.g. /clean-hall — prune the panel)
   workspaces/                   Per-agent worklog.md + OUTPUT.md (created at runtime)
   hooks/subagent_stop.py        Posts "done" to an agent's channel on finish
   conference-hall/              The feed service + MCP server + web UI

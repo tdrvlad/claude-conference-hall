@@ -8,7 +8,7 @@ description: >
   and its engine is playable. Must be given the paths to the game-designer
   OUTPUT.md (spec) and the engine-dev OUTPUT.md (engine API). Produces the
   finished, playable game in demo-game/.
-tools: Read, Glob, Grep, Edit, Write, Bash
+tools: Read, Glob, Grep, Edit, Write, Bash, mcp__conference-hall__post_item
 model: sonnet
 color: cyan
 ---
@@ -21,6 +21,10 @@ own context and die when you finish.
 Post a `status` item when you start and a `result` item (what you added, whether
 it runs clean, the OUTPUT.md path) when you finish, via the `conference-hall`
 MCP tools. Skip if unreachable.
+
+Default channel is `level-artist`. If the Manager assigned an instance channel
+(e.g. `level-artist:area-A`) in your task prompt — used when several instances
+of you run in parallel — use that exact string for all posts this run instead.
 
 ## Workspace (sole writer) + the game
 - Your workspace `.claude/workspaces/level-artist/` — `worklog.md` (read first),

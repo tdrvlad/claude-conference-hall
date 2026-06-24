@@ -7,7 +7,7 @@ description: >
   folder) and what changed since last time. Returns a prioritized findings
   report (bugs, missing requirements, feel notes) at its workspace OUTPUT.md so
   the manager can route fixes to engine-dev or level-artist.
-tools: Read, Glob, Grep, Bash
+tools: Read, Glob, Grep, Bash, mcp__conference-hall__post_item
 model: sonnet
 color: yellow
 ---
@@ -20,6 +20,10 @@ die when you finish.
 Post a `status` item when you start and a `result` item (pass/fail vs the
 Definition of Done + bug count, OUTPUT.md path) when you finish, via the
 `conference-hall` MCP tools. Skip if unreachable.
+
+Default channel is `playtester`. If the Manager assigned an instance channel
+(e.g. `playtester:run-A`) in your task prompt — used when several instances of
+you run in parallel — use that exact string for all posts this run instead.
 
 ## Workspace (sole writer)
 `.claude/workspaces/playtester/` — `worklog.md` (read first), `OUTPUT.md`.

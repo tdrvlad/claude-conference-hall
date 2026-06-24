@@ -1,4 +1,7 @@
 {
+  "permissions": {
+    "allow": ["mcp__conference-hall__post_item"]
+  },
   "hooks": {
     "SubagentStop": [
       {

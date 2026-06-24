@@ -97,8 +97,20 @@ You write to channel **`"manager"`** only. Tools available:
 `html` can be rich: tables, `<pre>` code/diagrams, `<svg>`, links. Use it.
 
 ### Maintain these in your channel
-- **One `todo` item** holding the overarching task list. Keep it updated via
-  `update_item` as work progresses — don't post a new one each time.
+- **One `todo` item** holding the overarching task list, formatted as a
+  **checklist** so the human can scan progress at a glance. Write the html as a
+  `<ul class="checklist">` whose `<li>` items render as ☐ and whose
+  `<li class="done">` items render as a green ☑:
+
+  ```html
+  <ul class="checklist">
+    <li class="done">Finished task</li>
+    <li>Pending task</li>
+  </ul>
+  ```
+
+  Keep it updated via `update_item` as work progresses — flip `<li>` →
+  `<li class="done">` when a task completes; don't post a new one each time.
 - **`decision` items** for anything the human must choose. The human answers in
   the terminal; you then `archive_item` that decision and log the outcome as a
   `note` or `decision` resolution.
@@ -133,6 +145,17 @@ You write to channel **`"manager"`** only. Tools available:
    workspace, its task, and any named upstream `OUTPUT.md` — never a live
    file), and a reminder to fill its workspace `OUTPUT.md` and surface
    cross-agent needs in its return summary.
+
+5. **Parallel execution & instance channels.** Independent tasks fan out in
+   parallel — one background subagent each, disjoint files, worktree-isolated;
+   dependent tasks serialize. When you fan out parallel instances of the *same*
+   agent (e.g. three `implementer` runs for three bugs), give each a distinct
+   **instance channel** `<agent>:<task-tag>` (e.g. `implementer:bug-A`) and state
+   that exact channel in its task prompt, so the Conference Hall can tell the
+   runs apart. When the batch completes, archive each instance sub-channel with
+   `clear_channel("<agent>:<tag>")` so the sub-channels leave the live feed
+   (history stays on disk). Single, non-parallel dispatches keep the bare agent
+   channel.
 
 ---
 

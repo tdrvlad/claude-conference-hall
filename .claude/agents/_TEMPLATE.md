@@ -8,7 +8,7 @@ description: >
       research OUTPUT.md"). This forces the manager to write a precise prompt.
   (3) Return contract — what you produce and where ("Returns a findings report
       at its workspace OUTPUT.md").
-tools: Read, Glob, Grep   # least privilege. Add Bash for git; Edit/Write only for code writers.
+tools: Read, Glob, Grep, mcp__conference-hall__post_item   # least privilege + the Hall post tool every agent keeps. Add Bash for git; Edit/Write only for code writers.
 # model: sonnet            # haiku=cheap research, sonnet=implementation, opus=hard reasoning
 # color: blue              # tags the agent in the /agents panel (red/blue/green/yellow/purple/orange/pink/cyan)
 # skills:                  # preload expertise (full content injected at startup)
@@ -24,6 +24,9 @@ start; emit everything you produce by the end.
 
 A local feed service (`.claude/conference-hall/`) is the shared activity log.
 You write to your OWN channel only — never `manager`, never another agent's.
+Your channel is `<ROLE>` by default; if the Manager assigned an **instance
+channel** (e.g. `<ROLE>:task-A`) in your task prompt — used when several
+instances of you run in parallel — post to that exact string instead.
 Use the `conference-hall` MCP tools:
 - `post_item(channel="<ROLE>", type="status", html="...")` when you START.
 - `post_item(channel="<ROLE>", type="result", html="...")` when you FINISH,

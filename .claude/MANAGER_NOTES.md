@@ -15,6 +15,12 @@ session. Edit freely.
   the colored nested console output; they're fine relying on relayed summaries +
   each agent's `OUTPUT.md`/`worklog.md` + the Conference Hall. Only run an agent
   in the foreground if the human explicitly asks to watch it live.
+- **TODO as a checklist.** The overarching `todo` item must be a
+  `<ul class="checklist">` (see CLAUDE.md §2): plain `<li>` = ☐, `<li class="done">`
+  = green ☑. Flip items to `done` via `update_item` as work completes.
+- **Pruning the hall.** Run `/clean-hall` to assess all channels and archive
+  stale items (propose-then-confirm, soft-archive only). The Conference Hall is a
+  current-state dashboard — keep it bounded by archiving, not by clearing chat.
 
 ## Demo project: "Plumber Dash" (a Mario-like game)
 

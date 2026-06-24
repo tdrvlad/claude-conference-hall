@@ -8,7 +8,7 @@ description: >
   the game-designer OUTPUT.md (the constants + module API + tile-map format).
   Builds the engine so a test level is playable; writes the engine files in
   demo-game/ and reports what it exposes for level-artist to build on.
-tools: Read, Glob, Grep, Edit, Write, Bash
+tools: Read, Glob, Grep, Edit, Write, Bash, mcp__conference-hall__post_item
 model: sonnet
 color: green
 ---
@@ -21,6 +21,10 @@ finish.
 Post a `status` item when you start and a `result` item (what you built, whether
 it runs clean, the OUTPUT.md path) when you finish, via the `conference-hall`
 MCP tools. Skip if unreachable.
+
+Default channel is `engine-dev`. If the Manager assigned an instance channel
+(e.g. `engine-dev:task-A`) in your task prompt — used when several instances of
+you run in parallel — use that exact string for all posts this run instead.
 
 ## Workspace (sole writer) + the game
 - Your workspace `.claude/workspaces/engine-dev/` — `worklog.md` (read first),

@@ -114,6 +114,15 @@ the live feed, kept on disk. So the live view reflects *now* and stays small,
 while history survives if you ever want it (`include_archived=true`). No
 rotation logic, no unbounded growth. Archiving *is* the bounding mechanism.
 
+Archiving happens two ways: **continuously**, as the Manager resolves each
+decision or finishes each delegation, and **periodically**, via the
+`/clean-hall` command (`.claude/commands/clean-hall.md`) — the human runs it to
+have the Manager sweep every channel, propose which stale items to archive (with
+a reason each), and archive only the confirmed ones. It never deletes and never
+acts before the human confirms. Clearing the chat session does **not** reset the
+hall — the SQLite DB and workspaces live on disk, independent of the
+conversation; archiving is the only thing that prunes the live view.
+
 ---
 
 ## 3. The components
@@ -160,16 +169,25 @@ operations. Item shape:
 ```
 
 - **channel** — who wrote it: `manager` or an agent name. One writer each.
+  Free-form text, so parallel instances of the same agent post to an **instance
+  sub-channel** `<agent>:<task-tag>` (e.g. `implementer:bug-A`); the Manager
+  archives these via `clear_channel` when the batch closes.
 - **type** — `decision` | `todo` | `spawn` | `handoff` | `result` | `status` |
   `note`. `decision` and `todo` auto-pin to the top of their channel.
 - **html** — arbitrary rich content: tables, `<pre>` (code, Mermaid), `<svg>`,
-  links. Rendered raw (trusted local content).
+  links. Rendered raw (trusted local content). A `todo` item written as
+  `<ul class="checklist">` renders as checkboxes — `<li>` = ☐, `<li class="done">`
+  = green ☑ — so the human scans progress at a glance; the Manager flips items to
+  `done` via `update_item` as work completes (visual only, not clickable).
 - **pinned / archived** — pinned floats to top; archived leaves the live feed.
 
 The UI is tabbed: one tab per channel + an "All" tab, decisions pinned, live
-counts per tab. Actors talk to it via the `conference-hall` MCP tools
+counts per tab. Sub-channels (`<agent>:<tag>`) nest under their parent family
+tab as indented sub-pills. Actors talk to it via the `conference-hall` MCP tools
 (`post_item`, `list_items`, `list_channels`, `update_item`, `archive_item`,
-`delete_item`, `clear_channel`).
+`delete_item`, `clear_channel`). For an agent to post, `mcp__conference-hall__post_item`
+must be in its `tools:` **and** in `permissions.allow` (settings.json) — otherwise a
+background subagent auto-denies the post and never appears as a channel.
 
 ### 3.5 The SubagentStop hook (`.claude/hooks/subagent_stop.py`)
 
@@ -237,7 +255,9 @@ role legible:
    later" failure.
 2. **Conference Hall channel.** State its channel = its `name`. It posts a
    `status` item on start and a `result` item on finish; skip silently if the
-   service is unreachable. It writes only its own channel.
+   service is unreachable. It writes only its own channel. If several instances
+   run in parallel, the Manager assigns each an instance channel
+   `<name>:<task-tag>` to post to instead of the bare `name`.
 3. **Workspace + hard rules** (copy verbatim into every agent):
    - Read only stable inputs — own workspace, assigned task, and any upstream
      `OUTPUT.md` the Manager names. Never read another agent's live files.
@@ -262,7 +282,7 @@ name: <lowercase-hyphenated-unique>
 description: >
   <Trigger>. Must be told <explicit input contract>. Returns <what + where>.
   <Constraint, e.g. never modifies files>.
-tools: <smallest set: Read, Glob, Grep [+ Bash] [+ Edit, Write]>
+tools: <smallest set: Read, Glob, Grep, mcp__conference-hall__post_item [+ Bash] [+ Edit, Write]>
 model: <haiku | sonnet | opus>     # optional
 color: <role-family color>          # optional
 # skills: [<skill-name>]            # optional, preloaded expertise
@@ -275,7 +295,9 @@ finish — read everything you need at the start; emit everything by the end.
 ## Conference Hall — your channel is **`<name>`**
 Post a `status` item when you start and a `result` item (summary + OUTPUT.md
 path) when you finish, via the `conference-hall` MCP tools. Skip if unreachable.
-Write only your own channel.
+Write only your own channel. Default channel is `<name>`; if the Manager assigned
+an instance channel (e.g. `<name>:task-A`) in your task prompt, use that exact
+string this run instead.
 
 ## Workspace (sole writer)
 `.claude/workspaces/<name>/` — worklog.md (read first), OUTPUT.md (canonical
@@ -363,6 +385,10 @@ the change is wrong.
 
 **MCP tools**: `post_item` · `list_items` · `list_channels` · `update_item` ·
 `archive_item` · `delete_item` · `clear_channel`.
+
+**Commands** (`.claude/commands/`, invoked as `/name`, loaded at session start):
+`/clean-hall` — Manager sweeps every channel and archives stale items
+(propose-then-confirm, soft-archive only); keeps the dashboard bounded.
 
 **Agent file locations**: project `.claude/agents/` (this repo) or user
 `~/.claude/agents/` (all your projects). Project wins name conflicts. Agents

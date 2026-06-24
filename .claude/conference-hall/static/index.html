@@ -100,6 +100,20 @@
     padding: 1px 7px;
     font-weight: 600;
   }
+  /* nested instance sub-channels (e.g. implementer:bug-A) */
+  .tab.sub {
+    font-size: 12px;
+    padding: 6px 10px 6px 8px;
+    margin-left: 6px;
+    gap: 6px;
+    color: var(--fg-faint);
+  }
+  .tab.sub::before { content: "└\00a0"; color: var(--fg-faint); }
+  .tab.sub.active {
+    color: var(--fg);
+    background: var(--bg);
+    border-color: var(--border);
+  }
 
   /* feed */
   main {
@@ -170,6 +184,34 @@
     color: var(--fg-dim);
   }
 
+  /* checklist — visual, Manager-controlled todo checkboxes.
+     <ul class="checklist"><li> = ☐, <li class="done"> = green ☑ */
+  .body ul.checklist {
+    list-style: none; padding-left: 2px; margin: .5em 0;
+  }
+  .body ul.checklist li {
+    position: relative; padding-left: 26px; margin: .3em 0; line-height: 1.5;
+  }
+  .body ul.checklist li::before {
+    content: ""; position: absolute; left: 0; top: .2em;
+    width: 15px; height: 15px; box-sizing: border-box;
+    border: 1.5px solid var(--fg-faint); border-radius: 4px;
+  }
+  .body ul.checklist li.done { color: var(--fg-dim); }
+  .body ul.checklist li.done::before {
+    border-color: var(--t-result); background: var(--t-result);
+  }
+  .body ul.checklist li.done::after {
+    content: ""; position: absolute; left: 5px; top: .27em;
+    width: 4px; height: 8px; transform: rotate(45deg);
+    border: solid var(--bg); border-width: 0 2px 2px 0;
+  }
+  /* defensive: GitHub-style task lists (<input type=checkbox>) still look right */
+  .body input[type="checkbox"] {
+    accent-color: var(--t-result); margin-right: 7px; vertical-align: -1px;
+  }
+  .body li:has(> input[type="checkbox"]) { list-style: none; margin-left: -1.1em; }
+
   .empty, .down {
     max-width: 940px; margin: 40px auto; text-align: center; color: var(--fg-faint);
   }
@@ -232,28 +274,57 @@ function setConn(ok) {
   document.getElementById("conn-txt").textContent = ok ? "live" : "offline";
 }
 
+function makeTab(channel, label, n, decisions, isSub) {
+  const tabs = document.getElementById("tabs");
+  const btn = document.createElement("button");
+  btn.className = "tab" + (isSub ? " sub" : "") + (channel === active ? " active" : "");
+  btn.onclick = () => setActive(channel);
+  btn.innerHTML =
+    `<span>${escapeHtml(label)}</span>` +
+    `<span class="count">${n}</span>` +
+    (decisions ? `<span class="decbadge">${decisions}</span>` : "");
+  tabs.appendChild(btn);
+}
+
 function renderTabs(channels) {
   const tabs = document.getElementById("tabs");
   const totalN = channels.reduce((s, c) => s + c.n, 0);
   const totalDec = channels.reduce((s, c) => s + (c.decisions || 0), 0);
 
-  const items = [{ channel: "__all__", label: "All", n: totalN, decisions: totalDec }, ...channels.map(c => ({ ...c, label: c.channel }))];
-
-  // only the active channel may have vanished; keep "All" always valid
-  if (active !== "__all__" && !channels.some(c => c.channel === active)) {
-    // keep showing the (now empty) tab label-less; fall back gracefully
+  // group channels into families by the part before the first ":" — a name with
+  // no ":" is a standalone/parent family; "parent:tag" attaches to family "parent".
+  const families = new Map();   // name -> { name, bare: channelObj|null, subs: [] }
+  const order = [];
+  function fam(name) {
+    if (!families.has(name)) { families.set(name, { name, bare: null, subs: [] }); order.push(name); }
+    return families.get(name);
+  }
+  for (const c of channels) {
+    const i = c.channel.indexOf(":");
+    if (i === -1) fam(c.channel).bare = c;
+    else fam(c.channel.slice(0, i)).subs.push(c);
   }
 
   tabs.innerHTML = "";
-  for (const it of items) {
-    const btn = document.createElement("button");
-    btn.className = "tab" + (it.channel === active ? " active" : "");
-    btn.onclick = () => setActive(it.channel);
-    btn.innerHTML =
-      `<span>${escapeHtml(it.label)}</span>` +
-      `<span class="count">${it.n}</span>` +
-      (it.decisions ? `<span class="decbadge">${it.decisions}</span>` : "");
-    tabs.appendChild(btn);
+  makeTab("__all__", "All", totalN, totalDec, false);
+
+  for (const name of order.sort((a, b) => a.localeCompare(b))) {
+    const f = families.get(name);
+    if (f.subs.length === 0) {
+      // standalone channel — renders exactly as before
+      const c = f.bare;
+      makeTab(c.channel, c.channel, c.n, c.decisions || 0, false);
+    } else {
+      // parent family with instance sub-channels
+      const subs = f.subs.slice().sort((a, b) => a.channel.localeCompare(b.channel));
+      const parentN = f.bare ? f.bare.n : subs.length;
+      const parentDec = (f.bare ? (f.bare.decisions || 0) : 0)
+        + subs.reduce((s, c) => s + (c.decisions || 0), 0);
+      makeTab(f.name, f.name, parentN, parentDec, false);
+      for (const c of subs) {
+        makeTab(c.channel, c.channel.slice(f.name.length + 1), c.n, c.decisions || 0, true);
+      }
+    }
   }
 }
 
